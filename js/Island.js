@@ -426,6 +426,7 @@ var Island = {
     },
     
     getBiome: function (cell) {
+        //BE: NEED TO EDIT MOST OF THESE OUT UNTIL I IMPLEMENT THEM?
         if (cell.ocean) {
             return 'OCEAN';
         } else if (cell.water) {

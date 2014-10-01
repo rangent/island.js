@@ -10487,6 +10487,7 @@ var View = Base.extend(Callback, {
 	};
 
 	docEvents[mouseup] = function(event) {
+		console.log(Island.diagram.cells[event.clientX + event.clientY * 200].biome + " @ " + event.clientX + "," + event.clientY);
 		var view = View._focused;
 		if (!view || !dragging)
 			return;
