@@ -465,7 +465,7 @@ var Island = {
         var c = this.getPerlinValue(point); 
 
         //return c - distance;
-        return c - (0.30 + 0.45 * distance * distance); //BE AWWWWW YEAH
+        return c - (0.30 + 0.35 * distance * distance); //BE AWWWWW YEAH
         //return c - 0.3;
     },
     

@@ -32,20 +32,20 @@
                 var islandCanvas = document.getElementById('island');
                 var perlinCanvas = document.getElementById('perlin');
 
-                islandCanvas.onclick = function() {
-                    Island.toggleDebug();
-                    perlinCanvas.style.display = (perlinCanvas.style.display == 'block' ? 'none' : 'block');
-                };
+                //islandCanvas.onclick = function() {
+                //    Island.toggleDebug();
+                //    perlinCanvas.style.display = (perlinCanvas.style.display == 'block' ? 'none' : 'block');
+                //};
 
 		
                 //Island.init();
 		Island.init({
-			width: 200-1, //BE: SHOULD BE SQRT(NBSITES) - 1
-			height: 200-1, //BE: SHOULD BE SQRT(NBSITES) - 1
+			width: 100-1, //BE: SHOULD BE SQRT(NBSITES) - 1
+			height: 100-1, //BE: SHOULD BE SQRT(NBSITES) - 1
 			perlinWidth: 200,
 			perlinHeight: 200,
 			allowDebug: false, // if set to true, you can click on the map to enter "debug" mode. Warning : debug mode is slow to initialize, set to false for faster rendering.
-			nbSites: 40000, // BE: SHOULD BE WIDTH * HEIGHT numbers of voronoi cell
+			nbSites: 10000, // BE: SHOULD BE WIDTH * HEIGHT numbers of voronoi cell
 			sitesDistribution: 'square', // distribution of the site of the voronoi graph : random, square or hexagon
 			sitesRandomisation: 0, // BE: KEEP THIS 0, will move each site in a random way (in %), for the square or hexagon distribution to look more random
 			nbGraphRelaxation: 0, // nb of time we apply the relaxation algo to the voronoi graph (slow !), for the random distribution to look less random
