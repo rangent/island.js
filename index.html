@@ -16,6 +16,13 @@
 	<body>
         <canvas id="island" resize="true"></canvas>
         <canvas id="perlin" hidden="true"></canvas>
+	<!-- BE NOTES:
+	Island.diagram.cells is yummy
+	getElevation() has command that controls elevation (more land vs. water)
+	
+	Set a breakpoint at paper.js @ 10490, on click:
+	Island.diagram.cells[event.clientX + event.clientY * 200]; -> gives you the cell clicked
+	-->
         
         <script type="application/javascript">
             paper.install(window);
@@ -30,7 +37,25 @@
                     perlinCanvas.style.display = (perlinCanvas.style.display == 'block' ? 'none' : 'block');
                 };
 
-                Island.init();
+		
+                //Island.init();
+		Island.init({
+			width: 200-1, //BE: SHOULD BE SQRT(NBSITES) - 1
+			height: 200-1, //BE: SHOULD BE SQRT(NBSITES) - 1
+			perlinWidth: 200,
+			perlinHeight: 200,
+			allowDebug: false, // if set to true, you can click on the map to enter "debug" mode. Warning : debug mode is slow to initialize, set to false for faster rendering.
+			nbSites: 40000, // BE: SHOULD BE WIDTH * HEIGHT numbers of voronoi cell
+			sitesDistribution: 'square', // distribution of the site of the voronoi graph : random, square or hexagon
+			sitesRandomisation: 0, // BE: KEEP THIS 0, will move each site in a random way (in %), for the square or hexagon distribution to look more random
+			nbGraphRelaxation: 0, // nb of time we apply the relaxation algo to the voronoi graph (slow !), for the random distribution to look less random
+			cliffsThreshold: 0.1,
+			lakesThreshold: 0.005, // lake elevation will increase by this value (* the river size) when a new river end inside
+			nbRivers: (10000 / 200),
+			maxRiversSize: 5,
+			shading: 0.00,
+			shadeOcean: true
+		    });
             };
         </script>
         <noscript>You need to enable Javascript in your browser for this page to display properly.</noscript>

@@ -463,8 +463,9 @@ var Island = {
         var distance = Math.sqrt(x * x + y * y);
         var c = this.getPerlinValue(point); 
 
-        return c - distance;
-        //return c - (0.3 + 0.3 * distance * distance);
+        //return c - distance;
+        return c - (0.30 + 0.45 * distance * distance); //BE AWWWWW YEAH
+        //return c - 0.3;
     },
     
     getPerlinValue: function(point) {
