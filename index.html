@@ -48,11 +48,11 @@
 			nbSites: 10000, // BE: SHOULD BE WIDTH * HEIGHT numbers of voronoi cell
 			sitesDistribution: 'square', // distribution of the site of the voronoi graph : random, square or hexagon
 			sitesRandomisation: 0, // BE: KEEP THIS 0, will move each site in a random way (in %), for the square or hexagon distribution to look more random
-			nbGraphRelaxation: 0, // nb of time we apply the relaxation algo to the voronoi graph (slow !), for the random distribution to look less random
+			nbGraphRelaxation: 0.0, // nb of time we apply the relaxation algo to the voronoi graph (slow !), for the random distribution to look less random
 			cliffsThreshold: 0.1,
 			lakesThreshold: 0.005, // lake elevation will increase by this value (* the river size) when a new river end inside
 			nbRivers: (10000 / 200),
-			maxRiversSize: 5,
+			maxRiversSize: 1,
 			shading: 0.00,
 			shadeOcean: true
 		    });

@@ -8,6 +8,11 @@ var DISPLAY_COLORS = {
     ICE: new paper.Color('#b3deff'),
     ROCK: new paper.Color('#535353'),
     LAVA: new paper.Color('#e22222'),
+    
+    MOUNTAIN: new paper.Color('#535353'),
+    FOREST: new paper.Color('#a9cca4'),
+    HILL: new paper.Color('#a49486'),
+    PLAINS: new paper.Color('#c9dca4'),
 
     SNOW: new paper.Color('#f8f8f8'),
     TUNDRA: new paper.Color('#ddddbb'),
@@ -430,30 +435,45 @@ var Island = {
         if (cell.ocean) {
             return 'OCEAN';
         } else if (cell.water) {
-            if (this.getRealElevation(cell) < 0.05) return 'MARSH';
-            if (this.getRealElevation(cell) > 0.4) return 'ICE';
+            //if (this.getRealElevation(cell) < 0.03) return 'LAVA';
+            //if (this.getRealElevation(cell) < 0.05) return 'MARSH';
+            //if (this.getRealElevation(cell) > 0.4) return 'ICE';
             return 'LAKE';
         } else if (cell.beach) {
             return 'BEACH';
-        } else if (cell.elevation > 0.4) {
-            if (cell.moisture > 0.50) return 'SNOW';
-            else if (cell.moisture > 0.33) return 'TUNDRA';
-            else if (cell.moisture > 0.16) return 'BARE';
-            else return 'SCORCHED';
-        } else if (cell.elevation > 0.3) {
-            if (cell.moisture > 0.66) return 'TAIGA';
-            else if (cell.moisture > 0.33) return 'SHRUBLAND';
-            else return 'TEMPERATE_DESERT';
+        } else if (cell.elevation > 0.45) {
+            //if (cell.moisture > 0.50) return 'SNOW';
+            //else if (cell.moisture > 0.33) return 'TUNDRA';
+            //else if (cell.moisture > 0.16) return 'BARE';
+            //else return 'SCORCHED';
+            return 'MOUNTAIN';
+        } else if (cell.elevation > 0.35) {
+            //if (cell.moisture > 0.50) return 'SNOW';
+            //else if (cell.moisture > 0.33) return 'TUNDRA';
+            //else if (cell.moisture > 0.16) return 'BARE';
+            //else return 'SCORCHED';
+            return 'HILL';
+        } else if (cell.elevation > 0.25) {
+            //if (cell.moisture > 0.66) return 'TAIGA';
+            //else if (cell.moisture > 0.33) return 'SHRUBLAND';
+            //else return 'TEMPERATE_DESERT';
+            if (cell.moisture > 0.5) return 'FOREST';
+            else if (cell.moisture > 0.33) return 'PLAINS';
+            return 'HILL';
         } else if (cell.elevation > 0.15) {
-            if (cell.moisture > 0.83) return 'TEMPERATE_RAIN_FOREST';
-            else if (cell.moisture > 0.50) return 'TEMPERATE_DECIDUOUS_FOREST';
-            else if (cell.moisture > 0.16) return 'GRASSLAND';
-            else return 'TEMPERATE_DESERT';
+            //if (cell.moisture > 0.83) return 'TEMPERATE_RAIN_FOREST';
+            //else if (cell.moisture > 0.50) return 'TEMPERATE_DECIDUOUS_FOREST';
+            //else if (cell.moisture > 0.16) return 'GRASSLAND';
+            //else return 'TEMPERATE_DESERT';
+            if (cell.moisture > 0.65) return 'FOREST';
+            else return 'PLAINS';
         } else {
-            if (cell.moisture > 0.66) return 'TROPICAL_RAIN_FOREST';
-            else if (cell.moisture > 0.33) return 'TROPICAL_SEASONAL_FOREST';
-            else if (cell.moisture > 0.16) return 'GRASSLAND';
-            else return 'SUBTROPICAL_DESERT';
+            //if (cell.moisture > 0.66) return 'TROPICAL_RAIN_FOREST';
+            //else if (cell.moisture > 0.33) return 'TROPICAL_SEASONAL_FOREST';
+            //else if (cell.moisture > 0.16) return 'GRASSLAND';
+            //else return 'SUBTROPICAL_DESERT';
+            if (cell.moisture > 0.55) return 'FOREST';
+            else return 'PLAINS';
         }
     },
 
