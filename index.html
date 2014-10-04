@@ -13,9 +13,10 @@
         <script type="text/javascript" src="js/Island.js"></script>
 	</head>
 
-	<body>
+	<body style="font-family: monospace">
         <canvas id="island" resize="true"></canvas>
         <canvas id="perlin" hidden="true"></canvas>
+		
 	<!-- BE NOTES:
 	Island.diagram.cells is yummy
 	getElevation() has command that controls elevation (more land vs. water)
@@ -24,40 +25,150 @@
 	Island.diagram.cells[event.clientX + event.clientY * 200]; -> gives you the cell clicked
 	-->
         
-        <script type="application/javascript">
-            paper.install(window);
-            window.onload = function(e) {
-                paper.setup('island');
-
-                var islandCanvas = document.getElementById('island');
-                var perlinCanvas = document.getElementById('perlin');
-
-                //islandCanvas.onclick = function() {
-                //    Island.toggleDebug();
-                //    perlinCanvas.style.display = (perlinCanvas.style.display == 'block' ? 'none' : 'block');
-                //};
-
+	<script type="application/javascript">
+		var Land = "";
+		var arr;
+		var h = 100;
+		var w = 100;
+		var tbl = "<table style='font-size:6pt; font-family:monospace' cellpadding='0' cellspacing='0'>";
 		
-                //Island.init();
-		Island.init({
-			width: 100-1, //BE: SHOULD BE SQRT(NBSITES) - 1
-			height: 100-1, //BE: SHOULD BE SQRT(NBSITES) - 1
-			perlinWidth: 200,
-			perlinHeight: 200,
-			allowDebug: false, // if set to true, you can click on the map to enter "debug" mode. Warning : debug mode is slow to initialize, set to false for faster rendering.
-			nbSites: 10000, // BE: SHOULD BE WIDTH * HEIGHT numbers of voronoi cell
-			sitesDistribution: 'square', // distribution of the site of the voronoi graph : random, square or hexagon
-			sitesRandomisation: 0, // BE: KEEP THIS 0, will move each site in a random way (in %), for the square or hexagon distribution to look more random
-			nbGraphRelaxation: 0.0, // nb of time we apply the relaxation algo to the voronoi graph (slow !), for the random distribution to look less random
-			cliffsThreshold: 0.1,
-			lakesThreshold: 0.005, // lake elevation will increase by this value (* the river size) when a new river end inside
-			nbRivers: (10000 / 200),
-			maxRiversSize: 1,
-			shading: 0.00,
-			shadeOcean: true
-		    });
-            };
-        </script>
-        <noscript>You need to enable Javascript in your browser for this page to display properly.</noscript>
+		
+		/**
+		 * @param {String} biome
+		 * @param {Number} elevation
+		 * @param {Number} moisture
+		 * @param {Boolean} water
+		 * @param {Boolean} ocean
+		 * @param {Boolean} river
+		 * @param {Integer} riverSize
+		 * @param {Integer} x
+		 * @param {Integer} y
+		 */
+		function loc(biome, elevation, moisture, water, ocean, river, riversize, source, x, y) {
+			this.biome = biome;
+			this.elevation = elevation;
+			this.moisture = moisture;
+			this.water = water;
+			this.ocean = ocean;
+			this.river = river;
+			this.riversize = riversize;
+			this.source = source;
+			this.x = x;
+			this.y = y;
+		}
+		
+		function generateLand(w, h) {
+			var island = MakeIsland(Math.random());
+			island.init({
+				width: w, //BE: SHOULD BE SQRT(NBSITES) - 1
+				height: h, //BE: SHOULD BE SQRT(NBSITES) - 1
+				perlinWidth: 200,
+				perlinHeight: 200,
+				allowDebug: false, // if set to true, you can click on the map to enter "debug" mode. Warning : debug mode is slow to initialize, set to false for faster rendering.
+				nbSites: 10000, // BE: SHOULD BE WIDTH * HEIGHT numbers of voronoi cell
+				sitesDistribution: 'square', // distribution of the site of the voronoi graph : random, square or hexagon
+				sitesRandomisation: 0, // BE: KEEP THIS 0, will move each site in a random way (in %), for the square or hexagon distribution to look more random
+				nbGraphRelaxation: 0.0, // nb of time we apply the relaxation algo to the voronoi graph (slow !), for the random distribution to look less random
+				cliffsThreshold: 0.1,
+				lakesThreshold: 0.005, // lake elevation will increase by this value (* the river size) when a new river end inside
+				nbRivers: (10000 / 200),
+				maxRiversSize: 1,
+				shading: 0.00,
+				shadeOcean: true
+			});
+			return island;
+		}
+		
+		function findStart(w, h, arr) {
+			//find start point
+			for (var i = h; i > 0; i--) {
+				for (var j = 0; j < (h - i) && j < w; j++) {
+					if (arr[i][j].biome != "OCEAN") {
+						//Island.diagram.cells[j,i]
+						console.log("startat: " + j + ", " + i);
+						return j + "," + i;
+					}
+				}				
+			}
+			return null;
+		}
+		
+		function islandHasMountain() {
+			var numMtn = 0
+			for (var i = 0; i < Land.diagram.cells.length; i++) {
+				if (typeof Land.diagram.cells[i].biome === "undefined") {
+					debugger;
+				}
+				if (Land.diagram.cells[i].biome == "MOUNTAIN") {
+					if (++numMtn >= 10) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		
+		paper.install(window);
+		window.onload = function(e) {
+			paper.setup('island');
+
+			var islandCanvas = document.getElementById('island');
+			var perlinCanvas = document.getElementById('perlin');
+
+			//islandCanvas.onclick = function() {
+			//    Island.toggleDebug();
+			//    perlinCanvas.style.display = (perlinCanvas.style.display == 'block' ? 'none' : 'block');
+			//};
+			
+			//Island.init();
+			Land = generateLand(w, h);
+			var num = 0;
+			while (!islandHasMountain() && ++num < 10) {
+				Land = generateLand(w, h);
+			}
+			
+			//make the array
+			arr = new Array(h);
+			for (var y = 0; y < h; y++) {
+				arr[y] = new Array(w);
+				for (var x = 0; x < w; x++) {
+					var cell = Land.diagram.cells[x + y * h];
+					if (typeof cell === "undefined") {
+						debugger;
+					}
+					var river = (typeof cell.river === "undefined") ? false : cell.river;
+					var riversize = (typeof cell.riversize === "undefined") ? 0 : cell.riversize;
+					if (typeof cell.biome === "undefined") {
+						debugger;
+					}
+					arr[y][x] = new loc(cell.biome, cell.elevation, cell.moisture, cell.water, cell.ocean, river, riversize, x, y);
+				}
+			}
+			
+			findStart(w, h, arr);
+			
+			for (var y = 1; y < h-1; y++) {
+				tbl += "<tr>";
+				for (var x = 0; x < w; x++) {
+					if (arr[y][x].biome=="MOUNTAIN") { tbl += "<td width='9px' bgcolor='#535353' "; }
+					if (arr[y][x].biome=="FOREST") { tbl += "<td width='9px' bgcolor='#a9cca4' "; }
+					if (arr[y][x].biome=="HILL") { tbl += "<td width='9px' bgcolor='#a49486' "; }
+					if (arr[y][x].biome=="PLAINS") { tbl += "<td width='9px' bgcolor='#c9dca4' "; }
+					if (arr[y][x].biome=="OCEAN") { tbl += "<td width='9px' bgcolor='#82caff' "; }
+					if (arr[y][x].biome=="BEACH") { tbl += "<td width='9px' bgcolor='#ffe98d' "; }
+					if (arr[y][x].biome=="LAKE") { tbl += "<td width='9px' bgcolor='#2f9ceb' "; }
+					if (typeof arr[y][x].river !== "undefined" && arr[y][x].river) {
+						//debugger;
+						tbl += "style=\"border: 1px solid blue\" ";
+					}
+					tbl += ">" + arr[y][x].biome.substr(0,1)+"</td>";
+				}
+				tbl += "</tr>";
+			}
+			tbl += "</table>";
+			document.write(tbl);
+		};
+	</script>
+    <noscript>You need to enable Javascript in your browser for this page to display properly.</noscript>
 	</body>
 </html>
