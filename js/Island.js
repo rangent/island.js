@@ -95,7 +95,7 @@ function MakeIsland(argSeed) {
             this.assignMoisture();
             this.assignBiomes();
             
-            this.render();
+            //this.render();
         },
     
         randomSites: function (n) {
@@ -453,6 +453,8 @@ function MakeIsland(argSeed) {
                 //else if (cell.moisture > 0.33) return 'TUNDRA';
                 //else if (cell.moisture > 0.16) return 'BARE';
                 //else return 'SCORCHED';
+                return 'HILL';
+            } else if (Math.random() < 0.015) {
                 return 'HILL';
             } else if (cell.elevation > 0.25) {
                 //if (cell.moisture > 0.66) return 'TAIGA';

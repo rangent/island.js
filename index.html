@@ -188,6 +188,41 @@
 					arr[y][x] = new loc(cell.biome, cell.elevation, cell.moisture, cell.water, cell.ocean, river, riverSize, cell.nextRiver, cell.source, cell.site.voronoiId, x, y);
 				}
 			}
+			
+			var strt = findStart(w, h, arr).split(",");
+			strt[0] = parseInt(strt[0]);
+			strt[1] = parseInt(strt[1]);
+			
+			//MAKE ONE OF THE SURROUNDING LOCATIONS A HILL
+			//debugger;
+			if (!arr[strt[1]+1][strt[0]].water && arr[strt[1]+1][strt[0]].biome != "BEACH") {
+				//NEED TO DO THIS TO ALL OF THEM
+				arr[strt[1]+1][strt[0]].biome = "HILL";
+				arr[strt[1]+1][strt[0]].water = false;
+				strt = [strt[0], strt[1]+1];
+			} else if (!arr[strt[1]+1][strt[0]+1].water && arr[strt[1]+1][strt[0]+1].biome != "BEACH") {
+				arr[strt[1]+1][strt[0]+1].biome = "HILL";
+				strt = [strt[0]+1, strt[1]+1];
+			} else if (!arr[strt[1]][strt[0]+1].water && arr[strt[1]][strt[0]+1].biome != "BEACH") {
+				arr[strt[1]][strt[0]+1].biome = "HILL";
+				strt = [strt[0]+1, strt[1]];
+			} else if (!arr[strt[1]-1][strt[0]+1].water && arr[strt[1]-1][strt[0]+1].biome != "BEACH") {
+				arr[strt[1]-1][strt[0]+1].biome = "HILL";
+				strt = [strt[0]+1, strt[1]-1];
+			} else if (!arr[strt[1]-1][strt[0]].water && arr[strt[1]-1][strt[0]].biome != "BEACH") {
+				arr[strt[1]-1][strt[0]].biome = "HILL";
+				strt = [strt[0], strt[1]-1];
+			} else if (!arr[strt[1]-1][strt[0]-1].water && arr[strt[1]-1][strt[0]-1].biome != "BEACH") {
+				arr[strt[1]-1][strt[0]-1].biome = "HILL";
+				strt = [strt[0]-1, strt[1]-1];
+			} else if (!arr[strt[1]][strt[0]-1].water && arr[strt[1]][strt[0]-1].biome != "BEACH") {
+				arr[strt[1]][strt[0]-1].biome = "HILL";
+				strt = [strt[0]-1, strt[1]];
+			} else {
+				arr[strt[1]+1][strt[0]-1].biome = "HILL";
+				strt = [strt[0]-1, strt[1]+1];
+			}
+			
 			/*
 			for (var y = 1; y < h-1; y++) {
 				tbl += "<tr>";
@@ -237,20 +272,30 @@
 					*/
 					if ((arr[y][x].river || arr[y][x].nextRiver) && arr[y][x].biome != "OCEAN" && arr[y][x].biome != "LAKE" ) {
 						//debugger;
-						var coords = vidToArrCoords[arr[y][x].nextRiver.vid].split(",");
-						if (arr[coords[1]][coords[0]].biome != "OCEAN") {
+						if (typeof vidToArrCoords[arr[y][x].nextRiver.vid] !== "undefined") {
+							var coords = vidToArrCoords[arr[y][x].nextRiver.vid].split(",");
+							if (arr[coords[1]][coords[0]].biome != "OCEAN") {
+								ctx.beginPath();
+								ctx.moveTo(x * 5 - 2.5, y * 5 - 2.5);
+								ctx.lineTo(coords[0] * 5 - 2.5, coords[1] * 5 - 2.5);
+								ctx.lineWidth = (typeof arr[y][x].riverSize === "undefined") ? 2 : arr[y][x].riverSize * 3.5;
+								ctx.strokeStyle = "#2f9ceb";
+								ctx.stroke();
+							}
+						}
+						else {
+							var xctr = x * 5 + 2.5;
+							var yctr = y * 5 + 2.5;
 							ctx.beginPath();
-							ctx.moveTo(x * 5 - 2.5, y * 5 - 2.5);
-							ctx.lineTo(coords[0] * 5 - 2.5, coords[1] * 5 - 2.5);
-							ctx.lineWidth = (typeof arr[y][x].riverSize === "undefined") ? 2 : arr[y][x].riverSize * 3.5;
-							ctx.strokeStyle = "#2f9ceb";
-							ctx.stroke();
+							ctx.arc(xctr, yctr, 2.5, 0, 2 * Math.PI, false);
+							ctx.fillStyle = "#2f9ceb";
+							ctx.fill();
+							ctx.closePath();
 						}
 					}
 				}
 			}
 			
-			var strt = findStart(w, h, arr).split(",");
 			ctx.fillStyle="red";
 			ctx.fillRect(strt[0] * 5, strt[1] * 5, 5, 5);
 			
