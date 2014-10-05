@@ -14,7 +14,7 @@
 	</head>
 
 	<body style="font-family: monospace">
-        <canvas id="land" height="500" width="500"></canvas>
+        <canvas id="land" height="800" width="1600"></canvas>
         <canvas id="island"  height="500" width="500"></canvas>
         <canvas id="perlin" hidden="true"></canvas>
 		
@@ -27,8 +27,8 @@
 	-->
         
 	<script type="application/javascript">
-		var h = 100;
-		var w = 100;
+		var h = 80;
+		var w = 160;
 		var vidToArrCoords = {};
 		
 		/**
@@ -65,7 +65,7 @@
 				perlinWidth: 200,
 				perlinHeight: 200,
 				allowDebug: false, // if set to true, you can click on the map to enter "debug" mode. Warning : debug mode is slow to initialize, set to false for faster rendering.
-				nbSites: 10000, // BE: SHOULD BE WIDTH * HEIGHT numbers of voronoi cell
+				nbSites: w*h, // BE: SHOULD BE WIDTH * HEIGHT numbers of voronoi cell
 				sitesDistribution: 'square', // distribution of the site of the voronoi graph : random, square or hexagon
 				sitesRandomisation: 0, // BE: KEEP THIS 0, will move each site in a random way (in %), for the square or hexagon distribution to look more random
 				nbGraphRelaxation: 0.0, // nb of time we apply the relaxation algo to the voronoi graph (slow !), for the random distribution to look less random
@@ -209,39 +209,35 @@
 			return arr;
 		}
 		
-		function drawAndAlignMap(arr, strt) {
-			
-			var a = new Array(10000);
-			for (var i = 0; i < 10000; i++) {
-				a[i] = 0;
-			}
+		function drawMap(arr, strt) {
 			
 			var cnvs=document.getElementById("land");
 			var ctx=cnvs.getContext("2d");
+			var xSize = cnvs.width / w;
+			var ySize = cnvs.height / h;
 			
 			for (var y = 0; y < h; y++) {
 				for (var x = 0; x < w; x++) {
-					a[arr[y][x].voronoiId]++;
 					ctx.fillStyle = getBiomeColor(arr[y][x].biome);
-					ctx.fillRect(x * 5, y * 5, 5, 5);
+					ctx.fillRect(x * xSize, y * ySize, xSize, ySize);
 					if ((arr[y][x].river || arr[y][x].nextRiver) && arr[y][x].biome != "OCEAN" && arr[y][x].biome != "LAKE" ) {
 						//debugger;
 						if (typeof vidToArrCoords[arr[y][x].nextRiver.vid] !== "undefined") {
 							var coords = vidToArrCoords[arr[y][x].nextRiver.vid].split(",");
 							if (arr[coords[1]][coords[0]].biome != "OCEAN") {
 								ctx.beginPath();
-								ctx.moveTo(x * 5 - 2.5, y * 5 - 2.5);
-								ctx.lineTo(coords[0] * 5 - 2.5, coords[1] * 5 - 2.5);
-								ctx.lineWidth = (typeof arr[y][x].riverSize === "undefined") ? 2 : arr[y][x].riverSize * 3.5;
+								ctx.moveTo(x * xSize - (xSize / 2), y * ySize - (ySize / 2));
+								ctx.lineTo(coords[0] * xSize - (xSize / 2), coords[1] * ySize - (ySize / 2));
+								ctx.lineWidth = (typeof arr[y][x].riverSize === "undefined") ? (xSize / 2) : arr[y][x].riverSize * (xSize / 2);
 								ctx.strokeStyle = "#2f9ceb";
 								ctx.stroke();
 							}
 						}
 						else {
-							var xctr = x * 5 + 2.5;
-							var yctr = y * 5 + 2.5;
+							var xctr = x * xSize + (xSize / 2);
+							var yctr = y * ySize + (ySize / 2);
 							ctx.beginPath();
-							ctx.arc(xctr, yctr, 2.5, 0, 2 * Math.PI, false);
+							ctx.arc(xctr, yctr, (xSize / 2), 0, 2 * Math.PI, false);
 							ctx.fillStyle = "#2f9ceb";
 							ctx.fill();
 							ctx.closePath();
@@ -251,10 +247,25 @@
 			}
 			
 			ctx.fillStyle="red";
-			ctx.fillRect(strt[0] * 5, strt[1] * 5, 5, 5);
+			ctx.fillRect(strt[0] * xSize, strt[1] * ySize, xSize, ySize);
+			
+		}
+		
+		function alignMap(arr, Land) {
+			
+			var a = new Array(w*h);
+			for (var i = 0; i < w*h; i++) {
+				a[i] = 0;
+			}
+			
+			for (var y = 0; y < h; y++) {
+				for (var x = 0; x < w; x++) {
+					a[arr[y][x].voronoiId]++;
+				}
+			}
 			
 			//find the ones that aren't mapped to anything
-			for (var i = 0; i < 10000; i++) {
+			for (var i = 0; i < w*h; i++) {
 				if (a[i]==0) {
 					vidToArrCoords[i] = Land.diagram.cells[i].site.x + "," + Land.diagram.cells[i].site.y;
 				}
@@ -283,7 +294,8 @@
 			var strt = findInitialStartingPoint(w, h, arr);
 			strt = adjustStartPoint(strt, arr);
 			
-			drawAndAlignMap(arr, strt);			
+			alignMap(arr,Land);
+			drawMap(arr, strt);
 		};
 	</script>
     <noscript>You need to enable Javascript in your browser for this page to display properly.</noscript>
