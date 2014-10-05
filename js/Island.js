@@ -1,7 +1,4 @@
 var DISPLAY_COLORS = {
-    OCEAN: new paper.Color('#82caff'),
-    BEACH: new paper.Color('#ffe98d'),
-    LAKE: new paper.Color('#2f9ceb'),
     RIVER: new paper.Color('#369eea'),
     SOURCE: new paper.Color('#00f'),
     MARSH: new paper.Color('#2ac6d3'),
@@ -9,6 +6,9 @@ var DISPLAY_COLORS = {
     ROCK: new paper.Color('#535353'),
     LAVA: new paper.Color('#e22222'),
     
+    OCEAN: new paper.Color('#82caff'),
+    BEACH: new paper.Color('#ffe98d'),
+    LAKE: new paper.Color('#2f9ceb'),
     MOUNTAIN: new paper.Color('#535353'),
     FOREST: new paper.Color('#a9cca4'),
     HILL: new paper.Color('#a49486'),
