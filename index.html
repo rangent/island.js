@@ -27,13 +27,11 @@
 	-->
         
 	<script type="application/javascript">
-		var Land = "";
-		var arr;
+		//var Land = "";
+		//var arr;
 		var h = 100;
 		var w = 100;
 		var vidToArrCoords = {};
-		var tbl = "<table style='font-size:6pt; font-family:monospace' cellpadding='0' cellspacing='0'>";
-		
 		
 		/**
 		 * @param {String} biome
@@ -83,13 +81,24 @@
 			return island;
 		}
 		
+		function generateLandWithMountain(w, h) {
+			var Land = generateLand(w, h);
+			var num = 0;
+			while (!landHasMountain(Land) && ++num < 10) {
+				Land = generateLand(w, h);
+			}
+			//tag each of the cells with an ID
+			for (var i = 0; i < Land.diagram.cells.length; i++) {
+				Land.diagram.cells[i].vid = i;
+			}
+			return Land;
+		}
+		
 		function findStart(w, h, arr) {
 			//find start point
 			for (var i = h; i > 0; i--) {
 				for (var j = 0; j < (h - i) && j < w; j++) {
 					if (arr[i][j].biome != "OCEAN") {
-						//Island.diagram.cells[j,i]
-						console.log("startat: " + j + ", " + i);
 						return j + "," + i;
 					}
 				}				
@@ -110,7 +119,7 @@
 			}
 		}
 		
-		function islandHasMountain() {
+		function landHasMountain(Land) {
 			var numMtn = 0
 			for (var i = 0; i < Land.diagram.cells.length; i++) {
 				if (typeof Land.diagram.cells[i].biome === "undefined") {
@@ -125,39 +134,8 @@
 			return false;
 		}
 		
-		function distance(a, b) {
-            var dx = a.x - b.x,
-                dy = a.y - b.y;
-            return Math.sqrt(dx * dx + dy * dy);
-        }
-		
-		paper.install(window);
-		window.onload = function(e) {
-			paper.setup('island');
-
-			var islandCanvas = document.getElementById('island');
-			var perlinCanvas = document.getElementById('perlin');
-			
-
-			//islandCanvas.onclick = function() {
-			//    Island.toggleDebug();
-			//    perlinCanvas.style.display = (perlinCanvas.style.display == 'block' ? 'none' : 'block');
-			//};
-			
-			//Island.init();
-			Land = generateLand(w, h);
-			var num = 0;
-			while (!islandHasMountain() && ++num < 10) {
-				Land = generateLand(w, h);
-			}
-			
-			for (var i = 0; i < Land.diagram.cells.length; i++) {
-				Land.diagram.cells[i].vid = i;
-			}
-			
-			//make the array
-			//debugger;
-			arr = new Array(h);
+		function cloneIsland(Land, w, h) {
+			var arr = new Array(h);
 			for (var y = 0; y < h; y++) {
 				arr[y] = new Array(w);
 				for (var x = 0; x < w; x++) {
@@ -174,7 +152,6 @@
 						}
 					}
 					vidToArrCoords[closestIndex] = x + "," + y;
-					//var cell = Land.diagram.cells[x + y * h];
 					var cell = Land.diagram.cells[closestIndex];
 					if (typeof cell === "undefined") {
 						debugger;
@@ -184,17 +161,33 @@
 					if (typeof cell.biome === "undefined") {
 						debugger;
 					}
-					//loc(biome, elevation, moisture, water, ocean, river, riverSize, nextRiver, source, voronoiId, x, y)
 					arr[y][x] = new loc(cell.biome, cell.elevation, cell.moisture, cell.water, cell.ocean, river, riverSize, cell.nextRiver, cell.source, cell.site.voronoiId, x, y);
 				}
 			}
+			return arr;
+		}
+		
+		function distance(a, b) {
+            var dx = a.x - b.x,
+                dy = a.y - b.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+		
+		paper.install(window);
+		window.onload = function(e) {
+			paper.setup('island');
+			
+			debugger;
+			Land = generateLandWithMountain(w,h);
+			
+			//make the array
+			var arr = cloneIsland(Land, w, h);
 			
 			var strt = findStart(w, h, arr).split(",");
 			strt[0] = parseInt(strt[0]);
 			strt[1] = parseInt(strt[1]);
 			
 			//MAKE ONE OF THE SURROUNDING LOCATIONS A HILL
-			//debugger;
 			if (!arr[strt[1]+1][strt[0]].water && arr[strt[1]+1][strt[0]].biome != "BEACH") {
 				//NEED TO DO THIS TO ALL OF THEM
 				arr[strt[1]+1][strt[0]].biome = "HILL";
@@ -223,29 +216,6 @@
 				strt = [strt[0]-1, strt[1]+1];
 			}
 			
-			/*
-			for (var y = 1; y < h-1; y++) {
-				tbl += "<tr>";
-				for (var x = 0; x < w; x++) {
-					if (arr[y][x].biome=="MOUNTAIN") { tbl += "<td width='9px' bgcolor='#535353' "; }
-					if (arr[y][x].biome=="FOREST") { tbl += "<td width='9px' bgcolor='#a9cca4' "; }
-					if (arr[y][x].biome=="HILL") { tbl += "<td width='9px' bgcolor='#a49486' "; }
-					if (arr[y][x].biome=="PLAINS") { tbl += "<td width='9px' bgcolor='#c9dca4' "; }
-					if (arr[y][x].biome=="OCEAN") { tbl += "<td width='9px' bgcolor='#82caff' "; }
-					if (arr[y][x].biome=="BEACH") { tbl += "<td width='9px' bgcolor='#ffe98d' "; }
-					if (arr[y][x].biome=="LAKE") { tbl += "<td width='9px' bgcolor='#2f9ceb' "; }
-					if (typeof arr[y][x].river !== "undefined" && arr[y][x].river) {
-						//debugger;
-						tbl += "style=\"border: 1px solid blue\" ";
-					}
-					tbl += ">" + arr[y][x].biome.substr(0,1)+"</td>";
-				}
-				tbl += "</tr>";
-			}
-			tbl += "</table>";
-			document.write(tbl); //draw the map in an HTML table
-			*/
-			
 			var cnvs=document.getElementById("land");
 			var ctx=cnvs.getContext("2d");
 			
@@ -259,17 +229,6 @@
 					a[arr[y][x].voronoiId]++;
 					ctx.fillStyle = getBiomeColor(arr[y][x].biome);
 					ctx.fillRect(x * 5, y * 5, 5, 5);
-					/*
-					if (arr[y][x].source) {
-						var xctr = x * 5 + 2.5;
-						var yctr = y * 5 + 2.5;
-						ctx.beginPath();
-						ctx.arc(xctr, yctr, 2.5, 0, 2 * Math.PI, false);
-						ctx.fillStyle = "#0000ee";
-						ctx.fill();
-						ctx.closePath();
-					}
-					*/
 					if ((arr[y][x].river || arr[y][x].nextRiver) && arr[y][x].biome != "OCEAN" && arr[y][x].biome != "LAKE" ) {
 						//debugger;
 						if (typeof vidToArrCoords[arr[y][x].nextRiver.vid] !== "undefined") {
@@ -302,7 +261,6 @@
 			//find the ones that aren't mapped to anything
 			for (var i = 0; i < 10000; i++) {
 				if (a[i]==0) {
-					console.log(i);
 					vidToArrCoords[i] = Land.diagram.cells[i].site.x + "," + Land.diagram.cells[i].site.y;
 				}
 			}
