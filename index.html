@@ -94,16 +94,87 @@
 			return Land;
 		}
 		
-		function findStart(w, h, arr) {
+		function findInitialStartingPoint(w, h, arr) {
 			//find start point
 			for (var i = h; i > 0; i--) {
 				for (var j = 0; j < (h - i) && j < w; j++) {
 					if (arr[i][j].biome != "OCEAN") {
-						return j + "," + i;
+						return [parseInt(j),parseInt(i)];
 					}
 				}				
 			}
 			return null;
+		}
+		
+		function adjustStartPoint(strt, arr) {
+			
+			var check = [[1,0], [1,1], [0,1], [-1,1], [-1,0], [-1,-1], [0,-1], [1,-1]];
+			
+			//start on a hilltop
+			var moved = false;
+			for (var c in check) {
+				var loc = arr[strt[1]+check[c][1]][strt[0]+check[c][0]];
+				if (!moved && !loc.water && loc.biome != "BEACH") {
+					loc.biome = "HILL";
+					loc.water = false;
+					strt = [strt[0]+check[c][0], strt[1]+check[c][1]];
+					moved = true;
+				}
+			}
+			
+			//make sure theres at least one of the following biomes
+			var requiredStartingBiomes = ["PLAINS", "FOREST"];
+			check = [[1,0], [1,1], [0,1], [-1,1], [-1,0], [-1,-1], [0,-1], [1,-1],
+					 [2,0], [2,1], [2,2], [1,2], [0,2], [-1,2], [-2,2], [-2,1], [-2,0],
+					 [-2,-1], [-2,-2], [-1,-2], [0,-2], [1,-2], [2,-2], [2,-1]];
+			for (var c in check) {
+				var loc = arr[strt[1]+check[c][1]][strt[0]+check[c][0]];
+				for (var b in requiredStartingBiomes) {
+					if (loc.biome == requiredStartingBiomes[b]) {
+						requiredStartingBiomes.splice(b,1);
+					}
+				}
+			}
+			//place any that we need
+			for (var c in check) {
+				if (requiredStartingBiomes.length > 0) {
+					var loc = arr[strt[1]+check[c][1]][strt[0]+check[c][0]];
+					if (!loc.water && loc.biome != "BEACH") {
+						loc.biome = requiredStartingBiomes.pop();
+						loc.water = false;
+					}
+				}
+			}
+			
+			
+			/*
+			//MAKE ONE OF THE SURROUNDING LOCATIONS A HILL
+			if (!arr[strt[1]+1][strt[0]].water && arr[strt[1]+1][strt[0]].biome != "BEACH") {
+				//NEED TO DO THIS TO ALL OF THEM
+			} else if (!arr[strt[1]+1][strt[0]+1].water && arr[strt[1]+1][strt[0]+1].biome != "BEACH") {
+				arr[strt[1]+1][strt[0]+1].biome = "HILL";
+				strt = [strt[0]+1, strt[1]+1];
+			} else if (!arr[strt[1]][strt[0]+1].water && arr[strt[1]][strt[0]+1].biome != "BEACH") {
+				arr[strt[1]][strt[0]+1].biome = "HILL";
+				strt = [strt[0]+1, strt[1]];
+			} else if (!arr[strt[1]-1][strt[0]+1].water && arr[strt[1]-1][strt[0]+1].biome != "BEACH") {
+				arr[strt[1]-1][strt[0]+1].biome = "HILL";
+				strt = [strt[0]+1, strt[1]-1];
+			} else if (!arr[strt[1]-1][strt[0]].water && arr[strt[1]-1][strt[0]].biome != "BEACH") {
+				arr[strt[1]-1][strt[0]].biome = "HILL";
+				strt = [strt[0], strt[1]-1];
+			} else if (!arr[strt[1]-1][strt[0]-1].water && arr[strt[1]-1][strt[0]-1].biome != "BEACH") {
+				arr[strt[1]-1][strt[0]-1].biome = "HILL";
+				strt = [strt[0]-1, strt[1]-1];
+			} else if (!arr[strt[1]][strt[0]-1].water && arr[strt[1]][strt[0]-1].biome != "BEACH") {
+				arr[strt[1]][strt[0]-1].biome = "HILL";
+				strt = [strt[0]-1, strt[1]];
+			} else {
+				arr[strt[1]+1][strt[0]-1].biome = "HILL";
+				strt = [strt[0]-1, strt[1]+1];
+			}
+			*/
+			return strt;
 		}
 		
 		function getBiomeColor(biome) {
@@ -143,6 +214,7 @@
 					var closestIndex = 0;
 					var closestDistance = 100000000;
 					var pt = new Point(x, y);
+					//extremely inefficient... but it only gets run on setup... so whatever :-/
 					for (var i = 0; i < Land.diagram.cells.length; i++) {
 						var pt2 = new Point(Land.diagram.cells[i].site.x, Land.diagram.cells[i].site.y);
 						var d = distance(pt, pt2);
@@ -167,62 +239,15 @@
 			return arr;
 		}
 		
-		function distance(a, b) {
-            var dx = a.x - b.x,
-                dy = a.y - b.y;
-            return Math.sqrt(dx * dx + dy * dy);
-        }
-		
-		paper.install(window);
-		window.onload = function(e) {
-			paper.setup('island');
-			
-			debugger;
-			Land = generateLandWithMountain(w,h);
-			
-			//make the array
-			var arr = cloneIsland(Land, w, h);
-			
-			var strt = findStart(w, h, arr).split(",");
-			strt[0] = parseInt(strt[0]);
-			strt[1] = parseInt(strt[1]);
-			
-			//MAKE ONE OF THE SURROUNDING LOCATIONS A HILL
-			if (!arr[strt[1]+1][strt[0]].water && arr[strt[1]+1][strt[0]].biome != "BEACH") {
-				//NEED TO DO THIS TO ALL OF THEM
-				arr[strt[1]+1][strt[0]].biome = "HILL";
-				arr[strt[1]+1][strt[0]].water = false;
-				strt = [strt[0], strt[1]+1];
-			} else if (!arr[strt[1]+1][strt[0]+1].water && arr[strt[1]+1][strt[0]+1].biome != "BEACH") {
-				arr[strt[1]+1][strt[0]+1].biome = "HILL";
-				strt = [strt[0]+1, strt[1]+1];
-			} else if (!arr[strt[1]][strt[0]+1].water && arr[strt[1]][strt[0]+1].biome != "BEACH") {
-				arr[strt[1]][strt[0]+1].biome = "HILL";
-				strt = [strt[0]+1, strt[1]];
-			} else if (!arr[strt[1]-1][strt[0]+1].water && arr[strt[1]-1][strt[0]+1].biome != "BEACH") {
-				arr[strt[1]-1][strt[0]+1].biome = "HILL";
-				strt = [strt[0]+1, strt[1]-1];
-			} else if (!arr[strt[1]-1][strt[0]].water && arr[strt[1]-1][strt[0]].biome != "BEACH") {
-				arr[strt[1]-1][strt[0]].biome = "HILL";
-				strt = [strt[0], strt[1]-1];
-			} else if (!arr[strt[1]-1][strt[0]-1].water && arr[strt[1]-1][strt[0]-1].biome != "BEACH") {
-				arr[strt[1]-1][strt[0]-1].biome = "HILL";
-				strt = [strt[0]-1, strt[1]-1];
-			} else if (!arr[strt[1]][strt[0]-1].water && arr[strt[1]][strt[0]-1].biome != "BEACH") {
-				arr[strt[1]][strt[0]-1].biome = "HILL";
-				strt = [strt[0]-1, strt[1]];
-			} else {
-				arr[strt[1]+1][strt[0]-1].biome = "HILL";
-				strt = [strt[0]-1, strt[1]+1];
-			}
-			
-			var cnvs=document.getElementById("land");
-			var ctx=cnvs.getContext("2d");
+		function drawAndAlignMap(arr, strt) {
 			
 			var a = new Array(10000);
 			for (var i = 0; i < 10000; i++) {
 				a[i] = 0;
 			}
+			
+			var cnvs=document.getElementById("land");
+			var ctx=cnvs.getContext("2d");
 			
 			for (var y = 0; y < h; y++) {
 				for (var x = 0; x < w; x++) {
@@ -264,9 +289,27 @@
 					vidToArrCoords[i] = Land.diagram.cells[i].site.x + "," + Land.diagram.cells[i].site.y;
 				}
 			}
+		}
+		
+		function distance(a, b) {
+            var dx = a.x - b.x,
+                dy = a.y - b.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+		
+		paper.install(window);
+		window.onload = function(e) {
+			paper.setup('island');
 			
+			Land = generateLandWithMountain(w,h);
 			
+			//make the array
+			var arr = cloneIsland(Land, w, h);
 			
+			var strt = findInitialStartingPoint(w, h, arr);
+			strt = adjustStartPoint(strt, arr);
+			
+			drawAndAlignMap(arr, strt);			
 		};
 	</script>
     <noscript>You need to enable Javascript in your browser for this page to display properly.</noscript>

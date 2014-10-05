@@ -512,6 +512,7 @@ function MakeIsland(argSeed) {
             }
         },
     
+        /*
         render: function () {
             if (!this.diagram) {
                 return;
@@ -524,6 +525,7 @@ function MakeIsland(argSeed) {
             
             paper.view.draw();
         },
+        */
         
         renderCells: function() {
             this.cellsLayer.activate();
