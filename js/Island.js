@@ -79,9 +79,9 @@ function MakeIsland(argSeed) {
             this.config.shading             = (userConfig.shading != undefined              ? userConfig.shading            : 0.35);
             this.config.shadeOcean          = (userConfig.shadeOcean != undefined           ? userConfig.shadeOcean         : true);
             
-            this.cellsLayer = new paper.Layer({name: 'cell'});
-            this.riversLayer = new paper.Layer({name: 'rivers'});
-            this.debugLayer = new paper.Layer({name: 'debug', visible: false});
+            //this.cellsLayer = new paper.Layer({name: 'cell'});
+            //this.riversLayer = new paper.Layer({name: 'rivers'});
+            //this.debugLayer = new paper.Layer({name: 'debug', visible: false});
             
             this.seed = Math.random();
             this.perlinCanvas = document.getElementById('perlin');
