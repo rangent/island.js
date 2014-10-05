@@ -13,8 +13,9 @@
         <script type="text/javascript" src="js/Island.js"></script>
 	</head>
 
-	<body style="font-family: monospace">
+	<body>
         <canvas id="land" height="500" width="500"></canvas>
+        <canvas id="minimap" height="300" width="300"></canvas>
         <canvas id="perlin" hidden="true"></canvas>
 		
 	<!-- BE NOTES:
@@ -250,6 +251,24 @@
 			
 		}
 		
+		function drawMiniMap(arr, strt) {
+			var minimapSize = 7; //size x size, needs to be odd number
+			
+			var cnvs=document.getElementById("minimap");
+			var ctx=cnvs.getContext("2d");
+			var xSize = cnvs.width / minimapSize;
+			var ySize = cnvs.height / minimapSize;
+			
+			for (var y = (strt[1]-((minimapSize-1)/2)); y <= (strt[1]+((minimapSize-1)/2)); y++) {
+				for (var x = (strt[0]-((minimapSize-1)/2)); x <= (strt[0]+((minimapSize-1)/2)); x++) {
+					ctx.fillStyle = getBiomeColor(arr[y][x].biome);
+					ctx.fillRect((x - (strt[0]-((minimapSize-1)/2))) * xSize, (y - (strt[1]-((minimapSize-1)/2))) * ySize, xSize, ySize);
+				}
+			}
+			ctx.fillStyle="red";
+			ctx.fillRect(xSize * ((minimapSize-1)/2), ySize * ((minimapSize-1)/2), xSize, ySize);
+		}
+		
 		function alignMap(arr, Land) {
 			
 			var a = new Array(w*h);
@@ -295,6 +314,7 @@
 			
 			alignMap(arr,Land);
 			drawMap(arr, strt);
+			drawMiniMap(arr, strt);
 		};
 	</script>
     <noscript>You need to enable Javascript in your browser for this page to display properly.</noscript>
