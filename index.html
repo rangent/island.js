@@ -120,19 +120,7 @@
 						c = c2;
 					}
 				}
-			}
-			
-				/*
-				//this method doesn't work all the time.  Southwest islands...
-				for (var i = h; i > 0; i--) {
-					for (var j = 0; j < (h - i) && j < w; j++) {
-						if (arr[i][j].biome != "OCEAN") {
-							return [parseInt(j),parseInt(i)];
-						}
-					}				
-				}
-				*/
-			
+			}			
 			
 			//search southwest for starting point
 			while (!found) {
@@ -299,38 +287,6 @@
 			ctx.fillRect(strt[0] * xSize, strt[1] * ySize, xSize, ySize);
 			
 		}
-		/*
-		function RGB(red, green, blue) {
-			this.red = red;
-			this.green = green;
-			this.blue = blue;
-		}
-		RGB.prototype.toColorCode = function() {
-			return "#" + this.red.toString(16) + this.green.toString(16) + this.blue.toString(16);
-		}
-		
-		function hexToRGB(RGBcode) {
-		   RGBcode = RGBcode.substring(1,RGBcode.length);
-		   var red = parseInt(RGBcode.substr(0, 2), 16);
-		   var green = parseInt(RGBcode.substr(2, 2), 16);
-		   var blue = parseInt(RGBcode.substr(4, 2), 16);
-		   return new RGB(red, green, blue);
-		}
-		
-		function additiveMix(rgb1, rgb2) {
-			var r = parseInt(((rgb1.red) * (rgb2.red))/255);
-			var g = parseInt(((rgb1.green) * (rgb1.green))/255);
-			var b = parseInt(((rgb1.blue) * (rgb1.blue))/255);
-			return new RGB(r, g, b);
-		}
-		
-		function subtractiveMix(rgb1, rgb2) {
-			var r = parseInt(255 - Math.sqrt(((255-rgb1.red)^2 + (255-rgb2.red)^2)/2));
-			var g = parseInt(255 - Math.sqrt(((255-rgb1.green)^2 + (255-rgb1.green)^2)/2));
-			var b = parseInt(255 - Math.sqrt(((255-rgb1.blue)^2 + (255-rgb1.blue)^2)/2));
-			return new RGB(r, g, b);
-		}
-		*/
 		
 		function drawMiniMap(arr, strt) {
 			var minimapSize = 5; //size x size, needs to be odd number
@@ -363,34 +319,6 @@
 							ctx.fillRect((x - (strt[0]-((minimapSize-1)/2))) * xSize, (y - (strt[1]-((minimapSize-1)/2))) * ySize, xSize, ySize);
 						}
 					}
-					/*
-					//need to figure out rivers...
-					//if (!(x < 0 || x >= arr[0].length || y < 0 || y >= arr.length)) {
-						if ((arr[y][x].river || arr[y][x].nextRiver) && arr[y][x].biome != "OCEAN" && arr[y][x].biome != "LAKE" ) {
-							//debugger;
-							if (typeof vidToArrCoords[arr[y][x].nextRiver.vid] !== "undefined") {
-								var coords = vidToArrCoords[arr[y][x].nextRiver.vid].split(",");
-								//if (arr[coords[1]][coords[0]].biome != "OCEAN") {
-									ctx.beginPath();
-									ctx.moveTo(x * xSize - (xSize / 2), y * ySize - (ySize / 2));
-									ctx.lineTo(coords[0] * xSize - (xSize / 2), coords[1] * ySize - (ySize / 2));
-									ctx.lineWidth = (typeof arr[y][x].riverSize === "undefined") ? (xSize / 2) : arr[y][x].riverSize * (xSize / 2);
-									ctx.strokeStyle = "#2f9ceb";
-									ctx.stroke();
-								//}
-							}
-							else {
-								var xctr = x * xSize + (xSize / 2);
-								var yctr = y * ySize + (ySize / 2);
-								ctx.beginPath();
-								ctx.arc(xctr, yctr, (xSize / 2), 0, 2 * Math.PI, false);
-								ctx.fillStyle = "#2f9ceb";
-								ctx.fill();
-								ctx.closePath();
-							}
-						}
-					//}
-					*/
 				}
 			}
 			ctx.fillStyle="red";
